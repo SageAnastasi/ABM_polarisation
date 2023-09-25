@@ -1,7 +1,17 @@
+cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
+
+import Pkg
+Pkg.add("Agents")
+Pkg.add("Random")
+Pkg.add("Makie")
+Pkg.add("InteractiveDynamics")
+
 using Agents
-using Random: MersenneTwister
+using InteractiveDynamics
 
 space = GridSpaceSingle((10, 10); periodic = false)
+using Random: MersenneTwister
+
 
 @agent SchellingAgent GridAgent{2} begin
     mood::Bool # whether the agent is happy in its position. (true = happy)
