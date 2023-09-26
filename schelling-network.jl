@@ -1,18 +1,19 @@
 cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
 
-import Pkg
-Pkg.add("Agents")
-Pkg.add("Graphs")
-Pkg.add("SimpleWeightedGraphs")
-Pkg.add("SparseArrays")
-Pkg.add("Random")
-Pkg.add("Makie")
+#import Pkg
+#Pkg.add("Agents")
+#Pkg.add("Graphs")
+#Pkg.add("SimpleWeightedGraphs")
+#Pkg.add("SparseArrays")
+#Pkg.add("Random")
+#Pkg.add("Makie")
 
 using Agents
-using SimpleWeightedGraphs
+using SimpleWeightedGraphs: SimpleWeightedDiGraph 
 using Graphs
 using SparseArrays: findnz
 using Random: MersenneTwister
+using InteractiveDynamics
 
 @agent SchellingAgent GridAgent{2} begin
     mood::Bool # whether the agent is happy in its position. (true = happy)
@@ -21,12 +22,19 @@ using Random: MersenneTwister
 end
 
 using Random # for reproducibility
-function initialize(; total_agents = 320, griddims = (20, 20), seed = 125)
+function initialize(; 
+    total_agents = 320, 
+    griddims = (20, 20), 
+    seed = 125
+)
     space = GridSpaceSingle(griddims, periodic = false)
-    rng = Random.Xoshiro(seed)
     model = ABM(
         SchellingAgent, space;
         rng, scheduler = Schedulers.Randomly()
+        properties = Dict(
+            :buddies =>  SimpleWeightedDiGraph(total_agents),
+            ),
+        rng = Random.Xoshiro(seed)
     )
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
