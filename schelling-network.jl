@@ -28,13 +28,11 @@ function initialize(;
     seed = 125
 )
     space = GridSpaceSingle(griddims, periodic = false)
+    properties = Dict(:social => SimpleWeightedGraph(total_agents))
+    rng = Random.Xoshiro(seed)
     model = ABM(
         SchellingAgent, space;
-        rng, scheduler = Schedulers.Randomly()
-        properties = Dict(
-            :buddies =>  SimpleWeightedDiGraph(total_agents),
-            ),
-        rng = Random.Xoshiro(seed)
+        properties, rng, scheduler = Schedulers.Randomly()
     )
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
