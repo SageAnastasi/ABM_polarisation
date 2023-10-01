@@ -38,7 +38,7 @@ function initialize(;
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
     for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), false, n < total_agents / 2 ? 1 : 2,rand(1:3))
+        agent = SchellingAgent(n, (1, 1), false, n < total_agents / 2 ? 1 : 2, 3)
         add_agent_single!(agent, model)
     end
     return model
@@ -68,9 +68,9 @@ function agent_step!(agent, model)
         move_agent_single!(agent, model)
     end
     #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-    for neighbor in nearby_agents(agent, model)
-        if has_edge(social, i, j) == false
-            add_edge!(social, i, j)
+    for neighbor in nearby_agents(agent, model.social)
+        if has_edge(model.social, i, j) == false
+            add_edge!(model.social, i, j)
         end
     end
 
@@ -87,5 +87,5 @@ figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure # returning the figure displays it
 
 using GraphMakie
-graphplot(social) 
+graphplot(model.social) 
 #graph is stored in the properties of the ABM; not sure how to pull it out to plot it
