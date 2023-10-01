@@ -70,7 +70,7 @@ function agent_step!(agent, model)
     #check whether the agent has a graph edge with its neighbours, and if not add an edge.
     for neighbor in nearby_agents(agent, model)
         if has_edge(social, i, j) == false
-            add_edge(social, i, j)
+            add_edge!(social, i, j)
         end
     end
 
@@ -87,4 +87,5 @@ figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure # returning the figure displays it
 
 using GraphMakie
-graphplot(social)
+graphplot(social) 
+#graph is stored in the properties of the ABM; not sure how to pull it out to plot it
