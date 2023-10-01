@@ -7,9 +7,10 @@ cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
 #Pkg.add("SparseArrays")
 #Pkg.add("Random")
 #Pkg.add("Makie")
+#Pkg.add("GraphMakie")
 
 using Agents
-using SimpleWeightedGraphs: SimpleWeightedDiGraph 
+using SimpleWeightedGraphs: SimpleWeightedGraph 
 using Graphs
 using SparseArrays: findnz
 using Random: MersenneTwister
@@ -66,6 +67,15 @@ function agent_step!(agent, model)
         agent.mood = false
         move_agent_single!(agent, model)
     end
+    #check whether the agent has a graph edge with its neighbours, and if not add an edge.
+    for neighbor in nearby_agents(agent, model)
+        if has_edge(social, i, j) == false
+            add_edge(social, i, j)
+        end
+    end
+
+
+
     return
 end
 
@@ -75,3 +85,6 @@ groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
 figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure # returning the figure displays it
+
+using GraphMakie
+graphplot(social)
