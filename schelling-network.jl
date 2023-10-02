@@ -1,6 +1,6 @@
 cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
 
-#import Pkg
+import Pkg
 #Pkg.add("Agents")
 #Pkg.add("Graphs")
 #Pkg.add("SimpleWeightedGraphs")
@@ -8,6 +8,7 @@ cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
 #Pkg.add("Random")
 #Pkg.add("Makie")
 #Pkg.add("GraphMakie")
+#Pkg.add("InteractiveDynamics")
 
 using Agents
 using SimpleWeightedGraphs 
@@ -17,9 +18,10 @@ using Random: MersenneTwister
 using InteractiveDynamics
 
 @agent SchellingAgent GridAgent{2} begin
+    seg::Int #the number of neighbours in the same group that the agent needs to be happy
     mood::Bool # whether the agent is happy in its position. (true = happy)
     group::Int # The group of the agent, determines mood as it interacts with neighbors
-    seg::Int
+    
 end
 
 using Random # for reproducibility
@@ -38,7 +40,7 @@ function initialize(;
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
     for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), false, n < total_agents / 2 ? 1 : 2, 3)
+        agent = SchellingAgent(n, (1, 1), 3, false, n < total_agents / 2 ? 1 : 2)
         add_agent_single!(agent, model)
     end
     return model
@@ -68,11 +70,11 @@ function agent_step!(agent, model)
         move_agent_single!(agent, model)
     end
     #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-    for neighbor in nearby_agents(agent, model.social)
-        if has_edge(model.social, i, j) == false
-            add_edge!(model.social, i, j)
-        end
-    end
+    #for neighbor in nearby_agents(agent, model.social)
+        #if has_edge(model.social, i, j) == false
+            #add_edge!(model.social, i, j)
+        #end
+    #end
 
 
 
