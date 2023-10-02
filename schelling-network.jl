@@ -10,7 +10,7 @@ cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
 #Pkg.add("GraphMakie")
 
 using Agents
-using SimpleWeightedGraphs: SimpleWeightedGraph 
+using SimpleWeightedGraphs 
 using Graphs
 using SparseArrays: findnz
 using Random: MersenneTwister
