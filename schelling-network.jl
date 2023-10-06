@@ -48,13 +48,40 @@ end
 
 model = initialize()
 
+
+function agent_step!(agent, model)
+    count_neighbors_same_group = 0
+    # For each neighbor, get group and compare to current agent's group
+     # and increment `count_neighbors_same_group` as appropriately.
+     # Here `nearby_agents` (with default arguments) will provide an iterator
+     # over the nearby agents one grid point away, which are at most 8.
+    for neighbor in nearby_agents(agent, model)
+        if agent.group == neighbor.group
+            count_neighbors_same_group += 1
+        end
+    end
+    # After counting the neighbors, decide whether or not to move the agent.
+    # If count_neighbors_same_group is at least the min_to_be_happy, set the
+    # mood to true. Otherwise, move the agent to a random position, and set
+    # mood to false.
+    if count_neighbors_same_group ≥ agent.seg
+        agent.mood = true
+    else
+        agent.mood = false
+        move_agent_single!(agent, model)
+    end
+    #check whether the agent has a graph edge with its neighbours, and if not add an edge.
+    for neighbor in nearby_agents(agent, model.social)
+        if has_edge(model.social, i, j) == false
+            add_edge!(model.social, i, j)
+        end
+    end
+    return
+end
+
 function model_step!(model)
-    function agent_step!(agent, model)
-        count_neighbors_same_group = 0
-        # For each neighbor, get group and compare to current agent's group
-        # and increment `count_neighbors_same_group` as appropriately.
-        # Here `nearby_agents` (with default arguments) will provide an iterator
-        # over the nearby agents one grid point away, which are at most 8.
+    count_neighbors_same_group = 0
+    for agent in allagents(model)
         for neighbor in nearby_agents(agent, model)
             if agent.group == neighbor.group
                 count_neighbors_same_group += 1
@@ -70,18 +97,8 @@ function model_step!(model)
             agent.mood = false
             move_agent_single!(agent, model)
         end
-        #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-        for neighbor in nearby_agents(agent, model.social)
-            if has_edge(model.social, i, j) == false
-                add_edge!(model.social, i, j)
-            end
-        end
-
-
-
-        return
     end
-    
+    return
 end
 
 using CairoMakie # choosing a plotting backend
