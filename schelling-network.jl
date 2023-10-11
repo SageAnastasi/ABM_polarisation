@@ -69,16 +69,18 @@ function agent_step!(agent, model)
         agent.mood = false
         move_agent_single!(agent, model)
     end
-    #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-    #for neighbor in nearby_agents(agent, model.social)
-        #if has_edge(model.social, i, j) == false
-            #add_edge!(model.social, i, j)
-        #end
-    #end
-
-
-
     return
+end
+
+function model_step!(model)
+    for agent in allagents(model)
+       #check whether the agent has a graph edge with its neighbours, and if not add an edge.
+        for neighbor in nearby_agents(agent, model.social)
+            if has_edge(model.social, i, j) == false
+                add_edge!(model.social, i, j)
+            end
+        end
+    end
 end
 
 using CairoMakie # choosing a plotting backend
