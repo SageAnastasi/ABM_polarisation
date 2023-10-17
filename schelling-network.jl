@@ -92,4 +92,5 @@ figure # returning the figure displays it
 
 using GraphMakie
 graphplot(model.social) 
-#graph is stored in the properties of the ABM; not sure how to pull it out to plot it
+
+#MethodError: no method matching abmspace(::SimpleWeightedGraph{Int64, Float64})
