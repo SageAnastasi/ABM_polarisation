@@ -76,10 +76,10 @@ function model_step!(model)
     for agent in allagents(model)
         #check whether the agent has a graph edge with its neighbours, and if not add an edge.
         for neighbor in nearby_agents(agent, model)
-            #this is where the problem is 
-            #MethodError: no method matching abmspace(::SimpleWeightedGraph{Int64, Float64})
-            if has_edge(model.social, i, j) == false
-                add_edge!(model.social, i, j)
+            if has_edge(model.social, neighbor, agent) == false
+                #ERROR: MethodError: Cannot `convert` an object of type SchellingAgent to an object of type Int64
+                print("ding!")
+                #add_edge!(model.social, i, j)
             end
         end
     end
