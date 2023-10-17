@@ -74,11 +74,14 @@ end
 
 function model_step!(model)
     for agent in allagents(model)
-       #check whether the agent has a graph edge with its neighbours, and if not add an edge.
+        #check whether the agent has a graph edge with its neighbours, and if not add an edge.
         for neighbor in nearby_agents(agent, model.social)
-            if has_edge(model.social, i, j) == false
-                add_edge!(model.social, i, j)
-            end
+            print("ding!")
+            #this is where the problem is 
+            #MethodError: no method matching abmspace(::SimpleWeightedGraph{Int64, Float64})
+            #if has_edge(model.social, i, j) == false
+                #add_edge!(model.social, i, j)
+            #end
         end
     end
 end
@@ -93,4 +96,3 @@ figure # returning the figure displays it
 using GraphMakie
 graphplot(model.social) 
 
-#MethodError: no method matching abmspace(::SimpleWeightedGraph{Int64, Float64})
