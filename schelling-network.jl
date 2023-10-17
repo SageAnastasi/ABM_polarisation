@@ -75,13 +75,12 @@ end
 function model_step!(model)
     for agent in allagents(model)
         #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-        for neighbor in nearby_agents(agent, model.social)
-            print("ding!")
+        for neighbor in nearby_agents(agent, model)
             #this is where the problem is 
             #MethodError: no method matching abmspace(::SimpleWeightedGraph{Int64, Float64})
-            #if has_edge(model.social, i, j) == false
-                #add_edge!(model.social, i, j)
-            #end
+            if has_edge(model.social, i, j) == false
+                add_edge!(model.social, i, j)
+            end
         end
     end
 end
