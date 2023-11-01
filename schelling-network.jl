@@ -1,21 +1,16 @@
-cd("C:\\Users\\admin\\Documents\\GitHub\\ABM_polarisation")
-
 import Pkg
-#Pkg.add("Agents")
-#Pkg.add("Graphs")
-#Pkg.add("SimpleWeightedGraphs")
-#Pkg.add("SparseArrays")
-#Pkg.add("Random")
-#Pkg.add("Makie")
-#Pkg.add("GraphMakie")
-#Pkg.add("InteractiveDynamics")
+
+Pkg.activate(".")
+Pkg.instantiate()
 
 using Agents
+using CairoMakie # choosing a plotting backend
 using SimpleWeightedGraphs 
 using Graphs
+using GraphMakie
 using SparseArrays: findnz
-using Random: MersenneTwister
-using InteractiveDynamics
+using Random # for reproducibility
+#using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
 @agent SchellingAgent GridAgent{2} begin
     seg::Int #the number of neighbours in the same group that the agent needs to be happy
@@ -24,7 +19,6 @@ using InteractiveDynamics
     
 end
 
-using Random # for reproducibility
 function initialize(; 
     total_agents = 320, 
     griddims = (20, 20), 
@@ -33,7 +27,7 @@ function initialize(;
     space = GridSpaceSingle(griddims, periodic = false)
     properties = Dict(:social => SimpleWeightedGraph(total_agents))
     rng = Random.Xoshiro(seed)
-    model = ABM(
+    model = UnremovableABM(
         SchellingAgent, space;
         properties, rng, scheduler = Schedulers.Randomly()
     )
@@ -43,18 +37,27 @@ function initialize(;
         agent = SchellingAgent(n, (1, 1), 3, false, n < total_agents / 2 ? 1 : 2)
         add_agent_single!(agent, model)
     end
+
+    # intialise the graph adding an edge to spatial neighbors
+    for agent in model.agents
+        for neighbor in nearby_agents(agent, model)
+                add_edge!(model.social, agent.id, neighbor.id)
+        end
+    end
+
     return model
 end
 
 model = initialize()
 
 
+
 function agent_step!(agent, model)
     count_neighbors_same_group = 0
     # For each neighbor, get group and compare to current agent's group
-     # and increment `count_neighbors_same_group` as appropriately.
-     # Here `nearby_agents` (with default arguments) will provide an iterator
-     # over the nearby agents one grid point away, which are at most 8.
+    # and increment `count_neighbors_same_group` as appropriately.
+    # Here `nearby_agents` (with default arguments) will provide an iterator
+    # over the nearby agents one grid point away, which are at most 8.
     for neighbor in nearby_agents(agent, model)
         if agent.group == neighbor.group
             count_neighbors_same_group += 1
@@ -70,44 +73,24 @@ function agent_step!(agent, model)
         agent.mood = false
         move_agent_single!(agent, model)
     end
-    #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-    for neighbor in nearby_agents(agent, model.social)
-        if has_edge(model.social, i, j) == false
-            add_edge!(model.social, i, j)
-        end
-    end
     return
 end
 
 function model_step!(model)
-    count_neighbors_same_group = 0
     for agent in allagents(model)
+        #check whether the agent has a graph edge with its neighbours, and if not add an edge.
         for neighbor in nearby_agents(agent, model)
-            if agent.group == neighbor.group
-                count_neighbors_same_group += 1
+            if has_edge(model.social, neighbor.id, agent.id) == false
+                add_edge!(model.social, neighbor.id, agent.id)
             end
         end
-        # After counting the neighbors, decide whether or not to move the agent.
-        # If count_neighbors_same_group is at least the min_to_be_happy, set the
-        # mood to true. Otherwise, move the agent to a random position, and set
-        # mood to false.
-        if count_neighbors_same_group ≥ agent.seg
-            agent.mood = true
-        else
-            agent.mood = false
-            move_agent_single!(agent, model)
-        end
     end
-    return
 end
-
-using CairoMakie # choosing a plotting backend
 
 groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
 figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure # returning the figure displays it
 
-using GraphMakie
 graphplot(model.social) 
-#graph is stored in the properties of the ABM; not sure how to pull it out to plot it
+
