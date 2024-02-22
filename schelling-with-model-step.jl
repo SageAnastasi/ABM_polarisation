@@ -69,5 +69,5 @@ using CairoMakie # choosing a plotting backend
 
 groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
+figure, _ = Agents.abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure 
