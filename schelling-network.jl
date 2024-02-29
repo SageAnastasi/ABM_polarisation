@@ -60,7 +60,7 @@ function agent_step!(agent, model)
     # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, 1)
     for i in neigh
-        if agent.group == model[i].group
+        if model[1].group == model[i].group
             count_neighbors_same_group += 1
         end
         print(count_neighbors_same_group)
