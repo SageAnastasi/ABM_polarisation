@@ -34,7 +34,7 @@ function initialize(;
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
     for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), 3, false, n < total_agents / 2 ? 1 : 2)
+        agent = SchellingAgent(n, (1, 1), 0.3, false, n < total_agents / 2 ? 1 : 2)
         add_agent_single!(agent, model)
     end
 
@@ -54,12 +54,14 @@ model = initialize()
 
 function agent_step!(agent, model)
     count_neighbors_same_group = 0
+    count_neighbours = 0
     # For each neighbor, get group and compare to current agent's group
     # and increment `count_neighbors_same_group` as appropriately.
     # Here `nearby_agents` (with default arguments) will provide an iterator
     # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, 1)
     for i in neigh
+        count_neighbours += 1
         if model[1].group == model[i].group
             count_neighbors_same_group += 1
         end
@@ -69,7 +71,7 @@ function agent_step!(agent, model)
     # If count_neighbors_same_group is at least the min_to_be_happy, set the
     # mood to true. Otherwise, move the agent to a random position, and set
     # mood to false.
-    if count_neighbors_same_group ≥ agent.seg
+    if count_neighbors_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
     else
         agent.mood = false
