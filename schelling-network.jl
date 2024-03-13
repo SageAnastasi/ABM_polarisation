@@ -45,6 +45,13 @@ function initialize(;
         end
     end
 
+    for agent in model.agents
+        for n in 1:8
+            friend = rand(1:320)    
+            add_edge!(model.social, agent.id, friend)
+        end
+    end
+
     return model
 end
 
