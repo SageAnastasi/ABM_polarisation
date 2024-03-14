@@ -62,17 +62,18 @@ model = initialize()
 function agent_step!(agent, model)
     count_neighbors_same_group = 0
     count_neighbours = 0
+    which_agent = agent.id
     # For each neighbor, get group and compare to current agent's group
     # and increment `count_neighbors_same_group` as appropriately.
     # Here `nearby_agents` (with default arguments) will provide an iterator
     # over the nearby agents one grid point away, which are at most 8.
-    neigh = Graphs.neighbors(model.social, 1)
+    neigh = Graphs.neighbors(model.social, which_agent)
     for i in neigh
         count_neighbours += 1
-        if model[1].group == model[i].group
+        if model[which_agent].group == model[i].group
             count_neighbors_same_group += 1
         end
-        print(count_neighbors_same_group)
+        #print(count_neighbors_same_group)
     end
     # After counting the neighbors, decide whether or not to move the agent.
     # If count_neighbors_same_group is at least the min_to_be_happy, set the
