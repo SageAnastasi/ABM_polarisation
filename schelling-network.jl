@@ -39,18 +39,18 @@ function initialize(;
     end
 
     # intialise the graph adding an edge to spatial neighbors
-    for agent in model.agents
-        for neighbor in nearby_agents(agent, model)
-                add_edge!(model.social, agent.id, neighbor.id)
-        end
-    end
-
     #for agent in model.agents
-        #for n in 1:8
-            #friend = rand(1:320)    
-            #add_edge!(model.social, agent.id, friend)
+        #for neighbor in nearby_agents(agent, model)
+                #add_edge!(model.social, agent.id, neighbor.id)
         #end
     #end
+
+    for agent in model.agents
+        for n in 1:8
+            friend = rand(1:320)    
+            add_edge!(model.social, agent.id, friend)
+        end
+    end
 
     return model
 end
