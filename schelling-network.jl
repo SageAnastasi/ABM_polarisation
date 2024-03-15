@@ -34,7 +34,7 @@ function initialize(;
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
     for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), 0.3, false, n < total_agents / 2 ? 1 : 2)
+        agent = SchellingAgent(n, (1, 1), 0.375, false, n < total_agents / 2 ? 1 : 2)
         add_agent_single!(agent, model)
     end
 
@@ -56,6 +56,7 @@ function agent_step!(agent, model)
     count_neighbors_same_group = 0
     count_neighbours = 0
     which_agent = agent.id
+    
 
     # For each neighbor, get group and compare to current agent's group
     # and increment `count_neighbors_same_group` as appropriately.
@@ -75,9 +76,11 @@ function agent_step!(agent, model)
     # mood to false.
     if count_neighbors_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
+        print("T ")
     else
         agent.mood = false
-        move_agent_single!(agent, model)
+        #move_agent_single!(agent, model)
+        print("F ")
     end
     return
 end
