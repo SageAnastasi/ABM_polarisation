@@ -76,13 +76,13 @@ function agent_step!(agent, model)
     # mood to false.
     if count_neighbors_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
-        print("T ")
     else
         agent.mood = false
+        #create a for i in neight get friends of friends then link to friend in same group
         #move_agent_single!(agent, model)
-        print("F ")
     end
     return
+    print(debug)
 end
 
 function model_step!(model)
