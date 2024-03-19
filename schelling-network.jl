@@ -63,10 +63,15 @@ function agent_step!(agent, model)
     # Here `nearby_agents` (with default arguments) will provide an iterator
     # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, which_agent)
+    friendlies = []
+    enemies = []
     for i in neigh
         count_neighbours += 1
         if model[which_agent].group == model[i].group
             count_neighbors_same_group += 1
+            push!(friendlies,model[i].agent.id)
+        else 
+            push!(enemies,model[i].agent.id)
         end
         #print(count_neighbors_same_group)
     end
