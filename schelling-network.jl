@@ -69,9 +69,9 @@ function agent_step!(agent, model)
         count_neighbours += 1
         if model[which_agent].group == model[i].group
             count_neighbors_same_group += 1
-            push!(friendlies,model[i].agent.id)
+            push!(friendlies,model[i].id)
         else 
-            push!(enemies,model[i].agent.id)
+            push!(enemies,model[i].id)
         end
         #print(count_neighbors_same_group)
     end
