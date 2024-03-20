@@ -91,8 +91,9 @@ function agent_step!(agent, model)
     end
 
     if count_neighbours ≤ 8 #this isn't right yet, needs to select from friends of this node
-        newfriend = rand(friendlies)
-        add_edge!(model.social,which_agent,newfriend)
+        networkLink = rand(friendlies)
+        FoF = Graphs.neighbors(model.social, networkLink)
+        add_edge!(model.social,which_agent,FoF)
     end
 
     return
