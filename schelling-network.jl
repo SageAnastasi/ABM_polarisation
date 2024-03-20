@@ -83,9 +83,18 @@ function agent_step!(agent, model)
         agent.mood = true
     else
         agent.mood = false
+        cutoff = rand(enemies)
+        rem_edge!(model.social, which_agent, cutoff)
         #create a for i in neight get friends of friends then link to friend in same group
         #move_agent_single!(agent, model)
+        count_neighbours -=1
     end
+
+    if count_neighbours ≤ 8
+        newfriend = rand(friendlies)
+        add_edge!(model.social,which_agent,newfriend)
+    end
+
     return
     print(debug)
 end
