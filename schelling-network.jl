@@ -90,25 +90,15 @@ function agent_step!(agent, model)
         count_neighbours -=1
     end
 
-    if count_neighbours ≤ 8 #this isn't right yet, needs to select from friends of this node
+    while count_neighbours ≤ 8 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
         networkLink = rand(friendlies)
         FoF = Graphs.neighbors(model.social, networkLink)
-        add_edge!(model.social,which_agent,FoF)
+        newFriend = rand(FoF)
+        add_edge!(model.social,which_agent,newFriend)
     end
 
     return
     print(debug)
-end
-
-function model_step!(model)
-    for agent in allagents(model)
-        #check whether the agent has a graph edge with its neighbours, and if not add an edge.
-        for neighbor in nearby_agents(agent, model)
-            if has_edge(model.social, neighbor.id, agent.id) == false
-                add_edge!(model.social, neighbor.id, agent.id)
-            end
-        end
-    end
 end
 
 groupcolor(a) = a.group == 1 ? :blue : :orange
