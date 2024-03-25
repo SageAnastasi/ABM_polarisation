@@ -1,67 +1,34 @@
-import Pkg
-
-Pkg.activate(".")
-Pkg.instantiate()
-
-using Agents
+using Agents # bring package into scope
 using CairoMakie # choosing a plotting backend
 using SimpleWeightedGraphs 
 using Graphs
 using GraphMakie
 using SparseArrays: findnz
-using Random # for reproducibility
-#using InteractiveDynamics -- no longer needed, abmplot is in Agents
+using Random
 
-@agent struct Schelling(GridAgent{2}) begin
-    mood::Bool # whether the agent is happy in its position. (true = happy)
-    group::Int # The group of the agent, determines mood as it interacts with neighbors
-    seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
-    
+# make the space the agents will live in
+space = GridSpace((20, 20)) # 20×20 grid cells
+
+# make an agent type appropriate to this space and with the
+# properties we want based on the ABM we will simulate
+@agent struct Schelling(GridAgent{2}) # inherit all properties of `GridAgent{2}`
+    mood::Bool = false # all agents are sad by default :'(
+    group::Int # the group does not have a default value!
+    seg::Float16
 end
 
-function initialize(; 
-    total_agents = 320, 
-    griddims = (20, 20), 
-    seed = 125
-)
-    space = GridSpaceSingle(griddims, periodic = false)
-    properties = Dict(:social => SimpleWeightedGraph(total_agents))
-    rng = Random.Xoshiro(seed)
-    model = UnremovableABM(
-        SchellingAgent, space;
-        properties, rng, scheduler = Schedulers.Randomly()
-    )
-    # populate the model with agents, adding equal amount of the two types of agents
-    # at random positions in the model
-    for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), 0.375, false, n < total_agents / 2 ? 1 : 2)
-        add_agent_single!(agent, model)
-    end
-
-    for agent in model.agents
-        for n in 1:8
-            friend = rand(1:320)    
-            add_edge!(model.social, agent.id, friend)
-        end
-    end
-
-    return model
-end
-
-model = initialize()
-
-
-
-function agent_step!(agent, model)
+# define the evolution rule: a function that acts once per step on
+# all activated agents (acts in-place on the given agent)
+function schelling_step!(agent, model)
+    # Here we access a model-level property `min_to_be_happy`
+    # This will have an assigned value once we create the model
     count_neighbors_same_group = 0
     count_neighbours = 0
     which_agent = agent.id
-    
-
     # For each neighbor, get group and compare to current agent's group
     # and increment `count_neighbors_same_group` as appropriately.
     # Here `nearby_agents` (with default arguments) will provide an iterator
-    # over the nearby agents one grid point away, which are at most 8.
+    # over the nearby agents one grid cell away, which are at most 8.
     neigh = Graphs.neighbors(model.social, which_agent)
     friendlies = []
     enemies = []
@@ -98,13 +65,20 @@ function agent_step!(agent, model)
     end
 
     return
-    print(debug)
 end
 
-groupcolor(a) = a.group == 1 ? :blue : :orange
-groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
-figure # returning the figure displays it
+# make a container for model-level properties
+properties = Dict(:social => SimpleWeightedGraph(total_agents))
 
-graphplot(model.social) 
+# Create the central `AgentBasedModel` that stores all simution information
+model = StandardABM(
+    Schelling, # type of agents
+    space; # space they live in
+    agent_step! = schelling_step!, properties
+)
 
+# populate the model with agents by automatically creating and adding them
+# to random position in the space
+for n in 1:300
+    add_agent_single!(model; group = n < 300 / 2 ? 1 : 2)
+end
