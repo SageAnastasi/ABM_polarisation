@@ -20,7 +20,7 @@ using Random # for reproducibility
 end
 
 function initialize(; 
-    total_agents = 320, 
+    total_agents = 25, 
     griddims = (20, 20), 
     seed = 125
 )
@@ -39,8 +39,8 @@ function initialize(;
     end
 
     for agent in model.agents
-        for n in 1:8
-            friend = rand(1:320)    
+        for n in 1:4
+            friend = rand(1:25)    
             add_edge!(model.social, agent.id, friend)
         end
     end
@@ -90,7 +90,7 @@ function agent_step!(agent, model)
         count_neighbours -=1
     end
 
-    while count_neighbours ≤ 8 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
+    while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
         networkLink = rand(friendlies)
         FoF = Graphs.neighbors(model.social, networkLink)
         newFriend = rand(FoF)
@@ -98,13 +98,9 @@ function agent_step!(agent, model)
     end
 
     return
-    print(debug)
+    
 end
 
-groupcolor(a) = a.group == 1 ? :blue : :orange
-groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
-figure # returning the figure displays it
-
 graphplot(model.social) 
+
 
