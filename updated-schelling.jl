@@ -96,9 +96,10 @@ for n in 1:300
 end
 
 for n in 1:300
+    this_agent = n
     for n in 1:8
         friend = rand(1:300)    
-        add_edge!(model.social, agent.id, friend)
+        add_edge!(model.social, this_agent, friend)
     end
 end
 
