@@ -64,3 +64,23 @@ xpos(agent) = agent.pos[1]
 adata = [(:mood, sum), (xpos, mean)]
 adf, mdf = run!(model, 5; adata)
 adf # a Julia `DataFrame`
+
+function initialize(; total_agents = 320, gridsize = (20, 20), min_to_be_happy = 3, seed = 125)
+    space = GridSpaceSingle(gridsize; periodic = false)
+    properties = Dict(:min_to_be_happy => min_to_be_happy)
+    rng = Xoshiro(seed)
+    model = StandardABM(
+        SchellingAgent, space;
+        agent_step! = schelling_step!, properties, rng,
+        container = Vector, # agents are not removed, so we us this
+        scheduler = Schedulers.Randomly() # all agents are activated once at random
+    )
+    # populate the model with agents, adding equal amount of the two types of agents
+    # at random positions in the model. At the start all agents are unhappy.
+    for n in 1:total_agents
+        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2)
+    end
+    return model
+end
+
+schelling = initialize()

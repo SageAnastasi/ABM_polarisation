@@ -18,6 +18,7 @@ using Random # for reproducibility
     seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
     
 end
+end
 
 function initialize(; 
     total_agents = 320, 
@@ -27,7 +28,7 @@ function initialize(;
     space = GridSpaceSingle(griddims, periodic = false)
     properties = Dict(:social => SimpleWeightedGraph(total_agents))
     rng = Random.Xoshiro(seed)
-    model = UnremovableABM(
+    model = StandardABM(
         SchellingAgent, space;
         properties, rng, scheduler = Schedulers.Randomly()
     )
@@ -101,10 +102,6 @@ function agent_step!(agent, model)
     print(debug)
 end
 
-groupcolor(a) = a.group == 1 ? :blue : :orange
-groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
-figure # returning the figure displays it
 
-graphplot(model.social) 
+graphplot(model.social)
 
