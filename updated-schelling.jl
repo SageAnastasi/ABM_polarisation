@@ -1,3 +1,13 @@
+using Pkg
+
+Pkg.add("Agents")
+Pkg.add("CairoMakie")
+Pkg.add("SimpleWeightedGraphs")
+Pkg.add("Graphs")
+Pkg.add("GraphMakie")
+Pkg.add("SparseArrays")
+Pkg.add("Random")
+
 using Agents # bring package into scope
 using CairoMakie # choosing a plotting backend
 using SimpleWeightedGraphs 
@@ -5,6 +15,7 @@ using Graphs
 using GraphMakie
 using SparseArrays: findnz
 using Random
+
 
 # make the space the agents will live in
 space = GridSpace((20, 20)) # 20×20 grid cells
@@ -68,17 +79,27 @@ function schelling_step!(agent, model)
 end
 
 # make a container for model-level properties
-properties = Dict(:social => SimpleWeightedGraph(total_agents))
+
 
 # Create the central `AgentBasedModel` that stores all simution information
 model = StandardABM(
     Schelling, # type of agents
     space; # space they live in
-    agent_step! = schelling_step!, properties
+    agent_step! = schelling_step!,
+    properties = Dict(:social => SimpleWeightedGraph(300))
 )
 
 # populate the model with agents by automatically creating and adding them
 # to random position in the space
 for n in 1:300
-    add_agent_single!(model; group = n < 300 / 2 ? 1 : 2)
+    add_agent_single!(model; group = n < 300 / 2 ? 1 : 2, seg = 0.375)
 end
+
+for n in 1:300
+    for n in 1:8
+        friend = rand(1:300)    
+        add_edge!(model.social, agent.id, friend)
+    end
+end
+
+graphplot(model.social) 
