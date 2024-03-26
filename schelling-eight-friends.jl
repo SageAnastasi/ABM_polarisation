@@ -84,19 +84,22 @@ function initialize(; total_agents = 320, gridsize = (20, 20), seed = 125)
     for n in 1:total_agents
         add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 3.75)
     end
+
     return model
 
-    for agent in model.agents
+    for agent in 1:total_agents
         for n in 1:8
-            friend = rand(1:320)    
+            friend = rand(1:total_agents)    
             add_edge!(model.social, agent.id, friend)
         end
     end
 
-    return model
+    
 end
 
 model = initialize()
+
+
 
 
 
