@@ -68,16 +68,26 @@ function schelling_step!(agent, model)
         #move_agent_single!(agent, model)
         count_neighbours -=1
     end
-
+    print(agent.mood)
+    print(count_neighbours)
+        #the while loop is causing problems
     while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
-        networkLink = rand(friendlies)
-        FoF = Graphs.neighbors(model.social, networkLink)
-        newFriend = rand(FoF)
-        add_edge!(model.social,which_agent,newFriend)
-    end
+        if length(friendlies) > 0
+            networkLink = rand(friendlies)
+            print(networkLink)
+            FoF = Graphs.neighbors(model.social, networkLink)
+            print(FoF)
+            newFriend = rand(FoF)
+            print(newFriend)
+            add_edge!(model.social,which_agent,newFriend)
 
-    return
+        else
+            random_friend = randomExcluded(1,49,which_agent)
+            add_edge!(model.social,which_agent,random_friend)
+        end
+    end
     print(debug)
+    return
 end
 
 function initialize(; total_agents = 50, gridsize = (20, 20), seed = 125)
@@ -93,7 +103,7 @@ function initialize(; total_agents = 50, gridsize = (20, 20), seed = 125)
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model. At the start all agents are unhappy.
     for n in 1:total_agents
-        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 3.75)
+        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 0.2)
     end
 
     return model
