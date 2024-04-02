@@ -104,3 +104,23 @@ for n in 1:300
 end
 
 graphplot(model.social) 
+
+function initialize(; total_agents = 320, gridsize = (20, 20), seed = 125)
+    space = GridSpaceSingle(gridsize; periodic = false)
+    properties = Dict(:social => SimpleWeightedGraph(300))
+    rng = Xoshiro(seed)
+    model = StandardABM(
+        SchellingAgent, space;
+        agent_step! = schelling_step!, properties, rng,
+        container = Vector, # agents are not removed, so we us this
+        scheduler = Schedulers.Randomly() # all agents are activated once at random
+    )
+    # populate the model with agents, adding equal amount of the two types of agents
+    # at random positions in the model. At the start all agents are unhappy.
+    for n in 1:total_agents
+        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 3.75)
+    end
+    return model
+end
+
+schelling = initialize()

@@ -80,10 +80,12 @@ function schelling_step!(agent, model)
             newFriend = rand(FoF)
             print(newFriend)
             add_edge!(model.social,which_agent,newFriend)
+            count_neighbours +=1
 
         else
             random_friend = randomExcluded(1,49,which_agent)
             add_edge!(model.social,which_agent,random_friend)
+            count_neighbours +=1
         end
     end
     print(debug)
