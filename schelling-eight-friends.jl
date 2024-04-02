@@ -12,6 +12,17 @@ using SparseArrays: findnz
 using Random # for reproducibility
 #using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
+function randomExcluded(min, max, excluded)
+      
+    n = rand(min:max)
+    if (n ≥ excluded) 
+        n += 1
+    else
+        n+= 0
+    end
+
+end #function needed for generating random graph edges without node selecting itself
+
 @agent struct SchellingAgent(GridAgent{2}) begin
     mood::Bool # whether the agent is happy in its position. (true = happy)
     group::Int # The group of the agent, determines mood as it interacts with neighbors
@@ -94,18 +105,14 @@ end
 
 model = initialize()
 
+
 for n in 1:320
     starter_agent = n
     for n in 1:8
-        friend = rand(1:320)    
+        friend = randomExcluded(1,319,starter_agent)
         add_edge!(model.social, starter_agent, friend)
     end
 end
-
-
-
-
-
 
 graphplot(model.social)
 

@@ -12,47 +12,26 @@ using SparseArrays: findnz
 using Random # for reproducibility
 #using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
-@agent SchellingAgent GridAgent{2} begin
-    seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
+function randomExcluded(min, max, excluded)
+      
+    n = rand(min:max)
+    if (n ≥ excluded) 
+        n += 1
+    else
+        n += 0
+    end
+
+end #function needed for generating random graph edges without node selecting itself
+
+@agent struct SchellingAgent(GridAgent{2}) begin
     mood::Bool # whether the agent is happy in its position. (true = happy)
     group::Int # The group of the agent, determines mood as it interacts with neighbors
+    seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
     
 end
-
-function initialize(; 
-    total_agents = 25, 
-    griddims = (20, 20), 
-    seed = 125
-)
-    space = GridSpaceSingle(griddims, periodic = false)
-    properties = Dict(:social => SimpleWeightedGraph(total_agents))
-    rng = Random.Xoshiro(seed)
-    model = UnremovableABM(
-        SchellingAgent, space;
-        properties, rng, scheduler = Schedulers.Randomly()
-    )
-    # populate the model with agents, adding equal amount of the two types of agents
-    # at random positions in the model
-    for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), 0.375, false, n < total_agents / 2 ? 1 : 2)
-        add_agent_single!(agent, model)
-    end
-
-    for agent in model.agents
-        for n in 1:4
-            friend = rand(1:25)    
-            add_edge!(model.social, agent.id, friend)
-        end
-    end
-
-    return model
 end
 
-model = initialize()
-
-
-
-function agent_step!(agent, model)
+function schelling_step!(agent, model)
     count_neighbors_same_group = 0
     count_neighbours = 0
     which_agent = agent.id
@@ -98,9 +77,41 @@ function agent_step!(agent, model)
     end
 
     return
+    print(debug)
+end
+
+function initialize(; total_agents = 50, gridsize = (20, 20), seed = 125)
+    space = GridSpaceSingle(gridsize; periodic = false)
+    properties = Dict(:social => SimpleWeightedGraph(total_agents))
+    rng = Xoshiro(seed)
+    model = StandardABM(
+        SchellingAgent, space;
+        agent_step! = schelling_step!, properties, rng,
+        container = Vector, # agents are not removed, so we us this
+        scheduler = Schedulers.Randomly() # all agents are activated once at random
+    )
+    # populate the model with agents, adding equal amount of the two types of agents
+    # at random positions in the model. At the start all agents are unhappy.
+    for n in 1:total_agents
+        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 3.75)
+    end
+
+    return model
+
+   
+
     
 end
 
-graphplot(model.social) 
+model = initialize()
 
+for n in 1:50
+    starter_agent = n
+    for n in 1:4
+        friend = randomExcluded(1,49,starter_agent)
+        add_edge!(model.social, starter_agent, friend)
+    end
+end
+
+graphplot(model.social)
 
