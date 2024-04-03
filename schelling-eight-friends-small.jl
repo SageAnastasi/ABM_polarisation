@@ -36,11 +36,6 @@ function schelling_step!(agent, model)
     count_neighbours = 0
     which_agent = agent.id
     
-
-    # For each neighbor, get group and compare to current agent's group
-    # and increment `count_neighbors_same_group` as appropriately.
-    # Here `nearby_agents` (with default arguments) will provide an iterator
-    # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, which_agent)
     friendlies = []
     enemies = []
@@ -52,36 +47,29 @@ function schelling_step!(agent, model)
         else 
             push!(enemies,model[i].id)
         end
-        #print(count_neighbors_same_group)
-    end
-    # After counting the neighbors, decide whether or not to move the agent.
-    # If count_neighbors_same_group is at least the min_to_be_happy, set the
-    # mood to true. Otherwise, move the agent to a random position, and set
-    # mood to false.
+    end #keeping track of the agent's same and different group links to select from later
+
     if count_neighbors_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
     else
         agent.mood = false
         cutoff = rand(enemies)
         rem_edge!(model.social, which_agent, cutoff)
-        #create a for i in neight get friends of friends then link to friend in same group
-        #move_agent_single!(agent, model)
         count_neighbours -=1
-    end
-        #the while loop is causing problems
-    while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
+    end #if unhappy, cut off a link from a different group
+
+    while count_neighbours ≤ 4 #each node should have at least 4 friends, this can be disrupted by incoming links being broken
         if length(friendlies) > 0
             networkLink = rand(friendlies)
             FoF = Graphs.neighbors(model.social, networkLink) 
             FoF = setdiff(FoF,which_agent)
-            newFriend = rand(FoF) #this is capable of reselecting the original node
+            newFriend = rand(FoF) 
             add_edge!(model.social,which_agent,newFriend)
-            count_neighbours +=1
-
+            count_neighbours +=1    #if there are friends in the same group, select new freind from their friends at random
         else
             random_friend = randomExcluded(1,49,which_agent)
             add_edge!(model.social,which_agent,random_friend)
-            count_neighbours +=1
+            count_neighbours +=1    #else select a friend from the whole graph at random
         end
     end
     
@@ -113,7 +101,7 @@ end
 
 model = initialize()
 
-for n in 1:50
+for n in 1:50 #populate the model with graph edges
     starter_agent = n
     for n in 1:4
         friend = randomExcluded(1,49,starter_agent)
