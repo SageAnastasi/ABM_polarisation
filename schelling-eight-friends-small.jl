@@ -68,17 +68,13 @@ function schelling_step!(agent, model)
         #move_agent_single!(agent, model)
         count_neighbours -=1
     end
-    print(agent.mood)
-    print(count_neighbours)
         #the while loop is causing problems
     while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
         if length(friendlies) > 0
             networkLink = rand(friendlies)
-            print(networkLink)
-            FoF = Graphs.neighbors(model.social, networkLink)
-            print(FoF)
-            newFriend = rand(FoF)
-            print(newFriend)
+            FoF = Graphs.neighbors(model.social, networkLink) 
+            FoF = setdiff(FoF,which_agent)
+            newFriend = rand(FoF) #this is capable of reselecting the original node
             add_edge!(model.social,which_agent,newFriend)
             count_neighbours +=1
 
@@ -88,7 +84,7 @@ function schelling_step!(agent, model)
             count_neighbours +=1
         end
     end
-    print(debug)
+    
     return
 end
 
