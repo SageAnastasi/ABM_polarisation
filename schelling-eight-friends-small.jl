@@ -32,39 +32,39 @@ end
 end
 
 function schelling_step!(agent, model)
-    count_neighbors_same_group = 0
+    count_neighbours_same_group = 0
     count_neighbours = 0
     which_agent = agent.id
     
     neigh = Graphs.neighbors(model.social, which_agent)
-    friendlies = []
-    enemies = []
+    neighbours_same_group = []
+    neighbours_other_group = []
     for i in neigh
         count_neighbours += 1
         if model[which_agent].group == model[i].group
-            count_neighbors_same_group += 1
-            push!(friendlies,model[i].id)
+            count_neighbours_same_group += 1
+            push!(neighbours_same_group,model[i].id)
         else 
-            push!(enemies,model[i].id)
+            push!(neighbours_other_group,model[i].id)
         end
     end #keeping track of the agent's same and different group links to select from later
 
-    if count_neighbors_same_group/count_neighbours ≥ agent.seg
+    if count_neighbours_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
     else
         agent.mood = false
-        cutoff = rand(enemies)
+        cutoff = rand(neighbours_other_group)
         rem_edge!(model.social, which_agent, cutoff)
         count_neighbours -=1
     end #if unhappy, cut off a link from a different group
 
     while count_neighbours ≤ 4 #each node should have at least 4 friends, this can be disrupted by incoming links being broken
-        if length(friendlies) > 0
-            networkLink = rand(friendlies)
-            FoF = Graphs.neighbors(model.social, networkLink) 
-            FoF = setdiff(FoF,which_agent)
-            newFriend = rand(FoF) 
-            add_edge!(model.social,which_agent,newFriend)
+        if length(neighbours_same_group) > 0
+            network_link = rand(neighbours_same_group)
+            friends_of_friend = Graphs.neighbors(model.social, network_link) 
+            friends_of_friend = setdiff(friends_of_friend,which_agent)
+            new_friend = rand(friends_of_friend) 
+            add_edge!(model.social,which_agent,new_friend)
             count_neighbours +=1    #if there are friends in the same group, select new freind from their friends at random
         else
             random_friend = randomExcluded(1,49,which_agent)
