@@ -18,7 +18,7 @@ function randomExcluded(min, max, excluded)
     if (n ≥ excluded) 
         n += 1
     else
-        n+= 0
+        n += 0
     end
 
 end #function needed for generating random graph edges without node selecting itself
@@ -32,52 +32,48 @@ end
 end
 
 function schelling_step!(agent, model)
-    count_neighbors_same_group = 0
+    count_neighbours_same_group = 0
     count_neighbours = 0
     which_agent = agent.id
     
-
-    # For each neighbor, get group and compare to current agent's group
-    # and increment `count_neighbors_same_group` as appropriately.
-    # Here `nearby_agents` (with default arguments) will provide an iterator
-    # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, which_agent)
-    friendlies = []
-    enemies = []
+    neighbours_same_group = []
+    neighbours_other_group = []
     for i in neigh
         count_neighbours += 1
         if model[which_agent].group == model[i].group
-            count_neighbors_same_group += 1
-            push!(friendlies,model[i].id)
+            count_neighbours_same_group += 1
+            push!(neighbours_same_group,model[i].id)
         else 
-            push!(enemies,model[i].id)
+            push!(neighbours_other_group,model[i].id)
         end
-        #print(count_neighbors_same_group)
-    end
-    # After counting the neighbors, decide whether or not to move the agent.
-    # If count_neighbors_same_group is at least the min_to_be_happy, set the
-    # mood to true. Otherwise, move the agent to a random position, and set
-    # mood to false.
-    if count_neighbors_same_group/count_neighbours ≥ agent.seg
+    end #keeping track of the agent's same and different group links to select from later
+
+    if count_neighbours_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
     else
         agent.mood = false
-        cutoff = rand(enemies)
+        cutoff = rand(neighbours_other_group)
         rem_edge!(model.social, which_agent, cutoff)
-        #create a for i in neight get friends of friends then link to friend in same group
-        #move_agent_single!(agent, model)
         count_neighbours -=1
-    end
+    end #if unhappy, cut off a link from a different group
 
-    while count_neighbours ≤ 8 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
-        networkLink = rand(friendlies)
-        FoF = Graphs.neighbors(model.social, networkLink)
-        newFriend = rand(FoF)
-        add_edge!(model.social,which_agent,newFriend)
+    while count_neighbours ≤ 8 #each node should have at least 4 friends, this can be disrupted by incoming links being broken
+        if length(neighbours_same_group) > 0
+            network_link = rand(neighbours_same_group)
+            friends_of_friend = Graphs.neighbors(model.social, network_link) 
+            friends_of_friend = setdiff(friends_of_friend,which_agent)
+            new_friend = rand(friends_of_friend) 
+            add_edge!(model.social,which_agent,new_friend)
+            count_neighbours +=1    #if there are friends in the same group, select new freind from their friends at random
+        else
+            random_friend = randomExcluded(1,49,which_agent)
+            add_edge!(model.social,which_agent,random_friend)
+            count_neighbours +=1    #else select a friend from the whole graph at random
+        end
     end
-
+    
     return
-    print(debug)
 end
 
 function initialize(; total_agents = 320, gridsize = (20, 20), seed = 125)
@@ -93,7 +89,7 @@ function initialize(; total_agents = 320, gridsize = (20, 20), seed = 125)
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model. At the start all agents are unhappy.
     for n in 1:total_agents
-        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 3.75)
+        add_agent_single!(model; mood = false, group = n < total_agents / 2 ? 1 : 2, seg = 0.375)
     end
 
     return model
@@ -105,8 +101,7 @@ end
 
 model = initialize()
 
-
-for n in 1:320
+for n in 1:319 #populate the model with graph edges
     starter_agent = n
     for n in 1:8
         friend = randomExcluded(1,319,starter_agent)
