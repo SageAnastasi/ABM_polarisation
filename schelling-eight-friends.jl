@@ -17,9 +17,11 @@ function randomExcluded(min, max, excluded)
     n = rand(min:max)
     if (n ≥ excluded) 
         n += 1
-    else
-        n += 0
+   #else
+    #    n += 0
     end
+
+    # return n
 
 end #function needed for generating random graph edges without node selecting itself
 
@@ -27,8 +29,38 @@ end #function needed for generating random graph edges without node selecting it
     mood::Bool # whether the agent is happy in its position. (true = happy)
     group::Int # The group of the agent, determines mood as it interacts with neighbors
     seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
-    
+    # friending_prob_function 
 end
+end
+
+function compute_happyness_discrete(model.social, which_agent)
+    neigh = Graphs.neighbors(model.social, which_agent)
+    count_neighbours_same_group = 0
+    for i in neigh
+        count_neighbours += 1
+        if model[which_agent].group == model[i].group
+            count_neighbours_same_group += 1
+        end
+    end
+
+    return count_neighbours_same_group/count_neighbours
+end
+
+function compute_happyness_continuous(model.social, which_agent)
+    neigh = Graphs.neighbors(model.social, which_agent)
+    count_neighbours_same_group = 0
+    for i in neigh
+        count_neighbours += 1
+        dist_to_neigh = abs(model[which_agent].group - model[i].group)
+        count_neighbours_same_group += (1 - dist_to_neigh)
+        end
+    end
+
+    return count_neighbours_same_group/count_neighbours
+end
+
+function is_happy(happyness, segregation_threshold)
+    happyness > segregation_threshold
 end
 
 function schelling_step!(agent, model)
@@ -100,6 +132,27 @@ function initialize(; total_agents = 320, gridsize = (20, 20), seed = 125)
 end
 
 model = initialize()
+
+function probability_add_edge(which_agent, friending_probability)
+    new_prob_friend = rand(1:320)
+    prob_of_friend = friending_probability(model[which_agent].group,model[new_prob_friend].group)
+    #prob_of_friend = 1 - abs(model[which_agent].group - model[new_prob_friend].group)
+    if rand(Bernoulli(prob_of_friend))
+        add_edge!()
+    end
+
+    # do we want to iterate above until we add something?
+end
+
+function defaut_friending_probability(my_group, your_group)
+    prob_of_friend = 1 - abs(my_group - your_group)
+    return prob_of_friend
+end
+
+function experimenting_friending_probability(my_group, your_group)
+    prob_of_friend = abs(my_group - your_group)
+    return prob_of_friend
+end
 
 for n in 1:319 #populate the model with graph edges
     starter_agent = n
