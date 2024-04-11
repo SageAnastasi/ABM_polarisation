@@ -53,7 +53,7 @@ function compute_happyness_continuous(model.social, which_agent)
         count_neighbours += 1
         dist_to_neigh = abs(model[which_agent].group - model[i].group)
         count_neighbours_same_group += (1 - dist_to_neigh)
-        end
+        
     end
 
     return count_neighbours_same_group/count_neighbours
