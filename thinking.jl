@@ -63,3 +63,18 @@ function is_happy(happyness, segregation_threshold)
     happyness > segregation_threshold
 end
 
+function schelling_step!(agent, model)
+    count_neighbours_same_group = 0
+    count_neighbours = 0
+    which_agent = agent.id
+    
+    neigh = Graphs.neighbors(model.social, which_agent)
+    neighbours_same_group = []
+    neighbours_other_group = []
+    
+    happyness = compute_happyness_discrete(model.social,which_agent)
+    if is_happy(happyness,agent.seg) = true
+        agent.mood = true
+    else
+        agent.mood = false
+        
