@@ -42,7 +42,7 @@ function compute_happyness_discrete(model.social, which_agent)
             count_neighbours_same_group += 1
         end
     end
-
+    neighbours_ratio = count_neighbours_same_group/count_neighbours
     return count_neighbours_same_group/count_neighbours
 end
 
@@ -56,6 +56,7 @@ function compute_happyness_continuous(model.social, which_agent)
         end
     end
 
+    neighbours_ratio = count_neighbours_same_group/count_neighbours
     return count_neighbours_same_group/count_neighbours
 end
 
@@ -68,13 +69,28 @@ function schelling_step!(agent, model)
     count_neighbours = 0
     which_agent = agent.id
     
-    neigh = Graphs.neighbors(model.social, which_agent)
-    neighbours_same_group = []
-    neighbours_other_group = []
-    
     happyness = compute_happyness_discrete(model.social,which_agent)
+    #COMPUTE IF AGENT IS HAPPY
     if is_happy(happyness,agent.seg) = true
         agent.mood = true
     else
         agent.mood = false
-        
+    end
+
+    #IF AGENT IS NOT HAPPY BREAK LINK
+    if agent.mood = false
+
+        #MAKE NEW LINK BREAKING BEHAVIOUR
+        #go through and get group for every friend, then find most different friends and randomly break from among them
+        #max_value, index = findmax(arr) or min_value for the experimental friender
+
+    end
+
+    
+
+    #IF AGENT HAS TOO FEW LINKS MAKE NEW
+
+    while length(Graphs.neighbors(model.social, which_agent) < 10
+
+    end
+    
