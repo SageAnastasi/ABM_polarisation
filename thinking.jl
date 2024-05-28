@@ -64,6 +64,70 @@ function is_happy(happyness, segregation_threshold)
     happyness > segregation_threshold
 end
 
+function defaut_friending_probability(my_group, your_group)
+    prob_of_friend = 1 - abs(my_group - your_group)
+    return prob_of_friend
+end
+
+function experimenting_friending_probability(my_group, your_group)
+    prob_of_friend = abs(my_group - your_group)
+    return prob_of_friend
+end
+
+
+function probability_add_edge(which_agent, friending_probability)
+    new_prob_friend = rand(1:320)
+    prob_of_friend = friending_probability(model[which_agent].group,model[new_prob_friend].group)
+    #prob_of_friend = 1 - abs(model[which_agent].group - model[new_prob_friend].group)
+    if rand(Bernoulli(prob_of_friend))
+        add_edge!()
+    end
+
+    # do we want to iterate above until we add something?
+end
+
+function defaut_unfriending_probability(my_group, your_group)
+    prob_of_friend = 1 - abs(my_group - your_group)
+    return prob_of_friend
+end
+
+function experimenting_unfriending_probability(my_group, your_group)
+    prob_of_friend = abs(my_group - your_group)
+    return prob_of_friend
+end
+
+
+function probability_remove_edge(which_agent, friending_probability)
+
+    neigh = Graphs.neighbors(model.social, which_agent)
+    for i in neigh
+        #compute friending probability
+        #append friending probability to each node
+        #if discrete select from group 0 friends at random
+        #if continuous ???
+        #break link between that node and which_agent
+        if model[which_agent].group == model[i].group
+            count_neighbours_same_group += 1
+            push!(neighbours_same_group,model[i].id)
+        else 
+            push!(neighbours_other_group,model[i].id)
+        end
+    end #keeping track of the agent's same and different group links to select from later
+
+    if count_neighbours_same_group/count_neighbours ≥ agent.seg
+        agent.mood = true
+    else
+        agent.mood = false
+        cutoff = rand(neighbours_other_group)
+        rem_edge!(model.social, which_agent, cutoff)
+        count_neighbours -=1
+    end #if unhappy, cut off a link from a different group
+
+end
+
+
+
+
 function schelling_step!(agent, model)
     count_neighbours_same_group = 0
     count_neighbours = 0
