@@ -19,8 +19,18 @@ using Random # for reproducibility
     
 end
 
+function randomExcluded(min,max,excluded)
+    n = rand(min:max)
+    if (n ≥ excluded)
+        n += 1
+        return n
+    else 
+        return n
+    end
+end
+
 function initialize(; 
-    total_agents = 320, 
+    total_agents = 26, 
     griddims = (20, 20), 
     seed = 125
 )
@@ -39,8 +49,9 @@ function initialize(;
     end
 
     for agent in model.agents
-        for n in 1:8
-            friend = rand(1:320)    
+        which_agent = agent.id
+        for n in 1:4
+            friend = randomExcluded(1,26,which_agent)    
             add_edge!(model.social, agent.id, friend)
         end
     end
@@ -63,15 +74,15 @@ function agent_step!(agent, model)
     # Here `nearby_agents` (with default arguments) will provide an iterator
     # over the nearby agents one grid point away, which are at most 8.
     neigh = Graphs.neighbors(model.social, which_agent)
-    friendlies = []
-    enemies = []
+    neighbours_same_group = []
+    neighbours_other_group = []
     for i in neigh
         count_neighbours += 1
         if model[which_agent].group == model[i].group
             count_neighbors_same_group += 1
-            push!(friendlies,model[i].id)
+            push!(neighbours_same_group,model[i].id)
         else 
-            push!(enemies,model[i].id)
+            push!(neighbours_other_group,model[i].id)
         end
         #print(count_neighbors_same_group)
     end
@@ -83,28 +94,24 @@ function agent_step!(agent, model)
         agent.mood = true
     else
         agent.mood = false
-        cutoff = rand(enemies)
+        cutoff = rand(neighbours_other_group)
         rem_edge!(model.social, which_agent, cutoff)
         #create a for i in neight get friends of friends then link to friend in same group
         #move_agent_single!(agent, model)
         count_neighbours -=1
     end
 
-    while count_neighbours ≤ 8 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
-        networkLink = rand(friendlies)
-        FoF = Graphs.neighbors(model.social, networkLink)
-        newFriend = rand(FoF)
-        add_edge!(model.social,which_agent,newFriend)
+    while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
+        friend = randomExcluded(1,26,which_agent)    
+        add_edge!(model.social, agent.id, friend)
+        count_neighbours += 1
     end
 
     return
     print(debug)
 end
 
-groupcolor(a) = a.group == 1 ? :blue : :orange
-groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
-figure # returning the figure displays it
+
 
 graphplot(model.social) 
 
