@@ -12,6 +12,11 @@ using SparseArrays: findnz
 using Random # for reproducibility
 #using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
+total_agents = 26
+seg_tolerance_1 = 0.3
+seg_tolerance_2 = 0.5
+
+
 @agent SchellingAgent GridAgent{2} begin
     seg::Float64 #the number of neighbours in the same group that the agent needs to be happy
     mood::Bool # whether the agent is happy in its position. (true = happy)
@@ -30,7 +35,7 @@ function randomExcluded(min,max,excluded)
 end
 
 function initialize(; 
-    total_agents = 26, 
+    total_agents = total_agents, 
     griddims = (20, 20), 
     seed = 125
 )
@@ -44,16 +49,22 @@ function initialize(;
     # populate the model with agents, adding equal amount of the two types of agents
     # at random positions in the model
     for n in 1:total_agents
-        agent = SchellingAgent(n, (1, 1), 0.375, false, n < total_agents / 2 ? 1 : 2)
+        agent = SchellingAgent(n, (1, 1), seg_tolerance_1, false, n < total_agents / 2 ? 1 : 2)
         add_agent_single!(agent, model)
     end
 
     for agent in model.agents
         which_agent = agent.id
+        agent_group = agent.group
         for n in 1:4
             friend = randomExcluded(1,26,which_agent)    
             add_edge!(model.social, agent.id, friend)
         end
+
+        if  agent_group > 1
+            agent.seg = seg_tolerance_2 #changes the second group's tolerance
+        end
+        print(agent.seg)
     end
 
     return model
