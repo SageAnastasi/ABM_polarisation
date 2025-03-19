@@ -12,7 +12,7 @@ using SparseArrays: findnz
 using Random # for reproducibility
 #using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
-total_agents = 10000
+total_agents = 100
 seg_tolerance_1 = 0.3
 seg_tolerance_2 = 0.5
 
@@ -26,22 +26,37 @@ seg_tolerance_2 = 0.5
 end
 
 function randomExcluded(min,max,excluded)
-    n = rand(min:max)
-    while n  == excluded
-        n = rand(min:max)
+    k = rand(min:max)
+    while k  == excluded
+        k = rand(min:max)
 
-    return n
+    return k
 
     end
 
+    return k
+
 end
+
+#function randomExcluded(min, max, excluded)
+      
+    #n = rand(min:max)
+    #if (n ≥ excluded) 
+        #n += 1
+   #else
+        #n += 0
+   # end
+
+    #return n
+
+#end #function needed for generating random graph edges without node selecting itself
 
 
 
 
 function initialize(; 
     total_agents = total_agents, 
-    griddims = (1000, 1000), 
+    griddims = (1000, 1000),#we aren't using the grid so it just needs to be larger than the number of agents 
     seed = 125
 )
     space = GridSpaceSingle(griddims, periodic = false)
@@ -61,15 +76,14 @@ function initialize(;
     for agent in model.agents
         which_agent = agent.id
         agent_group = agent.group
-        for n in 100
-            friend = randomExcluded(1,99,which_agent) #randomexcluded will push    
+        for n in 1:10
+            friend = randomExcluded(1,total_agents,which_agent) 
             add_edge!(model.social, agent.id, friend)
         end
 
         if  agent_group > 1
             agent.seg = seg_tolerance_2 #changes the second group's tolerance
         end
-        print(agent.seg)
     end
 
     return model
@@ -112,22 +126,18 @@ function agent_step!(agent, model)
         agent.mood = false
         cutoff = rand(neighbours_other_group)
         rem_edge!(model.social, which_agent, cutoff)
-        #create a for i in neight get friends of friends then link to friend in same group
-        #move_agent_single!(agent, model)
         count_neighbours -=1
     end
 
-    while count_neighbours ≤ 4 #each node should have at least 8 friends, this can be disrupted by incoming links being broken
-        friend = randomExcluded(1,26,which_agent)    
-        add_edge!(model.social, agent.id, friend)
+    while count_neighbours ≤ 5 #each node should have at least 50 friends, this can be disrupted by incoming links being broken
+        friend = randomExcluded(1,total_agents,which_agent)    
+        add_edge!(model.social, which_agent, friend)
         count_neighbours += 1
     end
 
     return
-    print(debug)
 end
 
-
-
-graphplot(model.social) 
+graphplot(model.social)
+step!(model, agent_step!, 10)
 
