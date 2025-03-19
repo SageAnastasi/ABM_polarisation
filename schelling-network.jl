@@ -12,9 +12,10 @@ using SparseArrays: findnz
 using Random # for reproducibility
 #using InteractiveDynamics -- no longer needed, abmplot is in Agents
 
-total_agents = 26
+total_agents = 10000
 seg_tolerance_1 = 0.3
 seg_tolerance_2 = 0.5
+
 
 
 @agent SchellingAgent GridAgent{2} begin
@@ -26,17 +27,21 @@ end
 
 function randomExcluded(min,max,excluded)
     n = rand(min:max)
-    if (n ≥ excluded)
-        n += 1
-        return n
-    else 
-        return n
+    while n  == excluded
+        n = rand(min:max)
+
+    return n
+
     end
+
 end
+
+
+
 
 function initialize(; 
     total_agents = total_agents, 
-    griddims = (20, 20), 
+    griddims = (1000, 1000), 
     seed = 125
 )
     space = GridSpaceSingle(griddims, periodic = false)
@@ -56,8 +61,8 @@ function initialize(;
     for agent in model.agents
         which_agent = agent.id
         agent_group = agent.group
-        for n in 1:4
-            friend = randomExcluded(1,26,which_agent)    
+        for n in 100
+            friend = randomExcluded(1,99,which_agent) #randomexcluded will push    
             add_edge!(model.social, agent.id, friend)
         end
 
