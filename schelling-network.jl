@@ -139,5 +139,4 @@ function agent_step!(agent, model)
 end
 
 graphplot(model.social)
-step!(model, agent_step!, 10)
 
