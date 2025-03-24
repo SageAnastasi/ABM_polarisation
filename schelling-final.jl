@@ -3,7 +3,8 @@ import Pkg
 Pkg.activate(".")
 Pkg.instantiate()
 
-__proj_directory__ = realpath(dirname(@__FILE__)*"/..")
+__proj_directory__ = realpath(dirname(@__FILE__))
+@show __proj_directory__
 
 using Agents
 using CairoMakie # choosing a plotting backend
@@ -45,16 +46,19 @@ function randomExcluded(min,max,excluded)
 
 end
 
-small_group_size = 0.2 #use a decimal for the percentage of the network
-total_agents = 100
-seg_tolerance_1 = 0.3
-seg_tolerance_2 = 0.5
-steps = 10
-entries = steps + 1
-happy_agents = 0
-similarity_ratio = 0
-similarity_ratio_sum = 0
+global small_group_size = 0.2 #use a decimal for the percentage of the network
+global total_agents = 100
+global seg_tolerance_1 = 0.3
+global seg_tolerance_2 = 0.5
+global steps = 10
+global entries = steps + 1
+global happy_agents_2 = 0
+global similarity_ratio_sum_2 = 0
 
+results = Matrix{Float32}(undef,entries,4)
+
+idx = 1
+results[idx,1] = idx
 
 function initialize(; 
     total_agents = total_agents, 
@@ -75,7 +79,14 @@ function initialize(;
         add_agent_single!(agent, model)
     end
 
-    similarity_ratio_sum = 0
+    idx = 1
+    σs = model.social |> get_σs
+    results[idx,2] = σs |> d_elbow
+
+    similarity_ratio_1 = 0
+    similarity_ratio_sum_1 = 0
+    happy_agents_1 = 0
+    happy_proportion_1 = 0
 
     for agent in model.agents
         which_agent = agent.id
@@ -107,19 +118,22 @@ function initialize(;
 
         if count_neighbors_same_group/count_neighbours ≥ agent.seg
             agent.mood = true
-            happy_agents +=1
+            happy_agents_1 +=1
         end
-        similarity_ratio_sum = similarity_ratio_sum + (count_neighbors_same_group/count_neighbours_other_group)
+        similarity_ratio_sum_1 = similarity_ratio_sum_1 + (count_neighbors_same_group/count_neighbours_other_group)
 
     end
-    similarity_ratio = similarity_ratio_sum/total_agents
-    happy_proportion = happy_agents/total_agents
+    similarity_ratio_1 = similarity_ratio_sum_1/total_agents
+    results[idx,3] = similarity_ratio_1
+    happy_proportion_1 = happy_agents_1/total_agents
+    results[idx,4] = happy_proportion_1
     return model
 end
 
 model = initialize()
 
 function agent_step!(agent, model)
+    global happy_agents_2, similarity_ratio_sum_2
     count_neighbors_same_group = 0
     count_neighbours_other_group = 0
     count_neighbours = 0
@@ -150,7 +164,7 @@ function agent_step!(agent, model)
     # mood to false.
     if count_neighbors_same_group/count_neighbours ≥ agent.seg
         agent.mood = true
-        happy_agents += 1
+        happy_agents_2 += 1
     else
         agent.mood = false
         cutoff = rand(neighbours_other_group)
@@ -165,39 +179,32 @@ function agent_step!(agent, model)
         count_neighbours += 1
     end
 
-    similarity_ratio_sum = similarity_ratio_sum + (count_neighbors_same_group/count_neighbours_other_group)
+    similarity_ratio_sum_2 = similarity_ratio_sum_2 + (count_neighbors_same_group/count_neighbours_other_group)
 
     return
 end
 
-results = Matrix{Float32}(undef,entries,4)
 
-idx = 0
-σs = model.social |> get_σs
-results[idx,1] = idx
-results[idx,2] = σs |> d_elbow
-results[idx,3] = similarity_ratio
-results[idx,4] = happy_proportion
-
-for i in steps
+for i in 1:steps
+    global idx, similarity_ratio_sum_2, happy_agents_2, similarity_ratio, σs
+    similarity_ratio_sum_2 = 0
+    happy_agents_2 = 0
     @show idx
-    global  idx += 1
-    similarity_ratio_sum = 0
-    happy_agents = 0
-    step!(model,agent!step)
-    similarity_ratio = similarity_ratio_sum / total_agents
-    happy_proportion = happy_agents / total_agents
+    idx += 1
+    step!(model,agent_step!)
+    similarity_ratio = similarity_ratio_sum_2 / total_agents
+    happy_proportion = happy_agents_2 / total_agents
     σs = model.social |> get_σs
     results[idx,1] = idx
-    results[idx,2] = σs |> r_elbow
+    results[idx,2] = σs |> d_elbow
     results[idx,3] = similarity_ratio
     results[idx,4] = happy_proportion
 end
     
 sbm_dim = DataFrame(
     results,
-    ["Dimension", "Entropy","Predominance","Cint"]
+    ["Step", "Dimension","Similaity_ratio","Happy_proportion"]
 )
 
-CSV.write(joinpath(__proj_directory__,"Results","sbm_growth_dim.csv"),sbm_dim)    
+CSV.write(joinpath(__proj_directory__,"abm_results.csv"),sbm_dim)    
 
