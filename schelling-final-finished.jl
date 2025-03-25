@@ -46,16 +46,16 @@ function randomExcluded(min,max,excluded)
 
 end
 
-global small_group_size = 0.2 #use a decimal for the percentage of the network
-global total_agents = 100
-global steps = 10
-global runs = 10
+global small_group_size = 0.25 #use a decimal for the percentage of the network
+global total_agents = 1000
+global steps = 100
+global runs = 1000
 global happy_agents = 0
 global similarity_ratio_sum = 0
 global tolerances = [0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1]
 
 
-results = Matrix{Float32}(undef,200,6)
+results = Matrix{Float32}(undef,20000,6)
 
 idx = 1
  
@@ -88,14 +88,14 @@ for t in tolerances, r in 1:runs
         for agent in model.agents
             which_agent = agent.id
             agent_group = agent.group
-            for n in 1:10
+            for n in 1:80
                 friend = randomExcluded(1,total_agents,which_agent) 
                 add_edge!(model.social, agent.id, friend)
             end
 
-            if  agent_group > 1
-                agent.seg = seg_tolerance_2 #changes the second group's tolerance
-            end
+            #if  agent_group > 1
+                #agent.seg = seg_tolerance_2 #changes the second group's tolerance
+           # end
 
             count_neighbours = 0
             count_neighbors_same_group = 0
@@ -165,7 +165,7 @@ for t in tolerances, r in 1:runs
             count_neighbours_other_group -=1
         end
 
-        while count_neighbours ≤ 5 #each node should have at least 50 friends, this can be disrupted by incoming links being broken
+        while count_neighbours ≤ 40 #half the beginning density
             friend = randomExcluded(1,total_agents,which_agent)    
             add_edge!(model.social, which_agent, friend)
             count_neighbours += 1
