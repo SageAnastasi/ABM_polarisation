@@ -54,9 +54,6 @@ global happy_agents = 0
 global similarity_ratio_sum = 0
 global tolerances = [0.25, 0.5, 0.85, 1] #converges immediately, fast, slowly with segregation, quickly with segregation
 
-
-results = Matrix{Float32}(undef,20000,9)
-
 idx = 1
  
 #START LOOP HERE
@@ -65,6 +62,7 @@ time = @elapsed begin
         tolerance = t
         run_id = r
         small = s
+        results = []
 
         function initialize(; 
             total_agents = total_agents, 
@@ -204,25 +202,25 @@ time = @elapsed begin
         similarity_ratio_2 = similarity_group_2/(total_agents*(1-s))
         happy_proportion = happy_agents/ total_agents
         σs = model.social |> get_σs
-        results[idx,1] = t
-        results[idx,2] = s
-        results[idx,3] = r
-        results[idx,4] = σs |> d_elbow
-        results[idx,5] = similarity_ratio
-        results[idx,6] = happy_proportion
-        results[idx,7] = coherence
-        results[idx,8] = similarity_ratio_1
-        results[idx,9] = similarity_ratio_2
+
+        push!(results,t)
+        push!(results,s)
+        push!(results,r)
+        push!(results,σs |> d_elbow)
+        push!(results, similarity_ratio)
+        push!(results,happy_proportion)
+        push!(results, coherence)
+        push!(results,similarity_ratio_1)
+        push!(results,similarity_ratio_2)
+        print(results)
+
+
+        open("data.csv", "a") do io
+            df = DataFrame(permutedims(results), :auto)
+            CSV.write(io, df, header=false,append=true)
+        end
 
         print(idx)
         global idx += 1
         end
     end
-
-print(time)
-sbm_dim = DataFrame(
-    results,
-    ["Tolerance", "Size","Run", "Dimension","Similaity_ratio","Happy_proportion","Coherence","Group1_similarity","Group2_similarity"]
-)
-
-CSV.write(joinpath(__proj_directory__,"abm_results.csv"),sbm_dim)    
