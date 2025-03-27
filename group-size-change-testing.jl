@@ -52,7 +52,7 @@ global steps = 100
 global runs = 100
 global happy_agents = 0
 global similarity_ratio_sum = 0
-global tolerances = [0.25, 0.5, 0.85, 1] #converges immediately, fast, slowly with segregation, quickly with segregation
+global tolerances = [0.25, 0.5, 0.85,0.95] #converges immediately, fast, slowly with segregation, 
 
 idx = 1
  
@@ -212,7 +212,7 @@ time = @elapsed begin
         push!(results, coherence)
         push!(results,similarity_ratio_1)
         push!(results,similarity_ratio_2)
-        print(results)
+
 
 
         open("data.csv", "a") do io
