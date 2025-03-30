@@ -49,7 +49,7 @@ end
 global small_group = [0.01,0.05,0.10,0.15,0.20,0.25,0.3,0.35,0.4,0.45,0.5] #use a decimal for the percentage of the network
 global total_agents = 1000
 global steps = 100
-global runs = 1000
+global runs = 100
 global happy_agents = 0
 global similarity_ratio_sum = 0
 global tolerances = [0.25, 0.5, 0.85,0.95] #converges immediately, fast, slowly with segregation, 
