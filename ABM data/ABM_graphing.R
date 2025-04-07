@@ -1,4 +1,4 @@
-> setwd("~/GitHub/ABM_polarisation/ABM data")
+setwd("~/GitHub/ABM_polarisation/ABM data")
 
 tolerance_test <- read.csv("tolerance-test-100-runs.csv",header = T)
 tolerance_test$Tolerance_factor <- as.factor(tolerance_test$Tolerance)
@@ -41,14 +41,15 @@ size_similarity_group2 <- ggplot(group_size_test, aes(x=Size_factor, y=Group2_si
 
 
 library(dplyr)
-tolerance_test %>% group_by(Tolerance_factor) %>% summarize(m = mean(Similaity_ratio), c = mean(Coherence,), Tolerance = Tolerance) -> average_tolerances
+tolerance_test %>% group_by(Tolerance_factor) %>% summarize(m = mean(Similaity_ratio), c = mean(Coherence), d = mean(Dimension)) -> average_tolerances
+average_tolerances$Tolerance <- c(0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1)
 average_tolerances$diff <- (average_tolerances$m - average_tolerances$Tolerance)
 tolerance_similarity_baseline <- ggplot(average_tolerances,aes(x = Tolerance, y = m)) + geom_point()
 tolerance_similarity_difference <- ggplot(average_tolerances,aes(x = Tolerance, y = diff)) + geom_point()
 
 
 #group size tolerance/smilarity difference testing
-group_size_test %>% group_by(Size,Tolerance) %>% summarize(m = mean(Similarity), c = mean(Coherence), g1 = mean(Group1_similarity),g2 = mean(Group2_similarity)) -> average_group_size
+group_size_test %>% group_by(Size,Tolerance) %>% summarize(m = mean(Similarity), c = mean(Coherence), g1 = mean(Group1_similarity),g2 = mean(Group2_similarity),d = mean(Dimension)) -> average_group_size
 average_group_size$diff = (average_group_size$m - average_group_size$Tolerance)
 average_group_size$diff1 = (average_group_size$g1 - average_group_size$Tolerance)
 average_group_size$diff2 = (average_group_size$g2 - average_group_size$Tolerance)
@@ -57,3 +58,5 @@ size_similarity_baseline <- ggplot(average_group_size,aes(x = Size, y = m,col=To
 size_similarity_all_difference <- ggplot(average_group_size,aes(x = Size, y = diff,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
 size_similarity_g1_difference <- ggplot(average_group_size,aes(x = Size, y = diff1,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
 size_similarity_g2_difference <- ggplot(average_group_size,aes(x = Size, y = diff2,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
+size_convergence <- ggplot(average_group_size,aes(x = Size, y = c,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
+
