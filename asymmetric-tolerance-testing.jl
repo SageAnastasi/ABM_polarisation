@@ -48,7 +48,7 @@ end
 
 global small_group_size = 0.5 #use a decimal for the percentage of the network
 global total_agents = 1000
-global steps = 100
+global steps = 1000
 global runs = 100
 global happy_agents = 0
 global similarity_ratio_sum = 0
@@ -209,6 +209,8 @@ time = @elapsed begin
 
 
         similarity_ratio = similarity_ratio_sum/ total_agents
+        similarity_ratio_1 = similarity_group_1/(500)
+        similarity_ratio_2 = similarity_group_2/(500)
         happy_proportion = happy_agents/ total_agents
         σs = model.social |> get_σs
         results[idx,1] = g1_t
@@ -229,7 +231,7 @@ time = @elapsed begin
 print(time)
 sbm_dim = DataFrame(
     results,
-    ["g1_t","g2_t","Run", "Dimension","Similaity_ratio","Happy_proportion","Coherence"]
+    ["g1_t","g2_t","Run", "Dimension","Similaity_ratio","Happy_proportion","Coherence","g1_similarity","g2_similarity"]
 )
 
 CSV.write(joinpath(__proj_directory__,"abm_results.csv"),sbm_dim)    

@@ -80,7 +80,7 @@ time = @elapsed begin
             # populate the model with agents, adding equal amount of the two types of agents
             # at random positions in the model
             for n in 1:total_agents
-                agent = SchellingAgent(n, (1, 1), g1_t, false, n ≤ total_agents * small ? 1 : 2)
+                agent = SchellingAgent(n, (1, 1), g1_t, false, n ≤ total_agents * 0.15 ? 1 : 2)
                 add_agent_single!(agent, model)
             end
 
@@ -199,8 +199,8 @@ time = @elapsed begin
         end
 
         similarity_ratio = similarity_ratio_sum/total_agents
-        similarity_ratio_1 = similarity_group_1/(total_agents*s)
-        similarity_ratio_2 = similarity_group_2/(total_agents*(1-s))
+        similarity_ratio_1 = similarity_group_1/(total_agents*0.15)
+        similarity_ratio_2 = similarity_group_2/(total_agents*(1-0.15))
         happy_proportion = happy_agents/ total_agents
         σs = model.social |> get_σs
 
