@@ -5,6 +5,11 @@ tolerance_test$Tolerance_factor <- as.factor(tolerance_test$Tolerance)
 group_size_test <- read.csv("group_size_1000_steps.csv",header=T)
 group_size_test$Size_factor <- as.factor(group_size_test$Size)
 group_size_test$Tolerance_factor <- as.factor(group_size_test$Tolerance)
+asymmetric <- read.csv("asymmetric-tolerance.csv",header=T)
+asymmetric$g1_t_factor <- as.factor(asymmetric$g1_t)
+asymmetric$g2_t_factor < - as.factor(asymmetric$g2_t)
+minority <- read.csv("weak-minority-preferences.csv",header=T)
+minority$g1_t_factor <- as
 
 library(ggplot2)
 
@@ -59,4 +64,15 @@ size_similarity_all_difference <- ggplot(average_group_size,aes(x = Size, y = di
 size_similarity_g1_difference <- ggplot(average_group_size,aes(x = Size, y = diff1,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
 size_similarity_g2_difference <- ggplot(average_group_size,aes(x = Size, y = diff2,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
 size_convergence <- ggplot(average_group_size,aes(x = Size, y = c,col=Tolerance_factor,shape=Tolerance_factor)) + geom_point()
+
+#asymmetric tolerance testing
+asymmetric %>% group_by(g1_t,g2_t) %>% summarize(m = mean(Similaity_ratio), c = mean(Coherence), g1 = mean(g1_similarity),g2 = mean(g2_similarity),d = mean(Dimension),) -> asymmetric_average
+asymmetric_average$g1_t_factor <- as.factor(asymmetric_average$g1_t)
+asymmetric_convergence <- ggplot(asymmetric_average,aes(x = g2_t, y = c,col=g1_t_factor,shape=g1_t_factor)) + geom_point()
+asymmetric_average$diff1 = (asymmetric_average$g1 - asymmetric_average$g1_t)
+asymmetric_average$diff2 = (asymmetric_average$g2 - asymmetric_average$g2_t)
+asymmetric_g1_difference <- ggplot(asymmetric_average,aes(x = g2_t, y = diff1,col=g1_t_factor,shape=g1_t_factor)) + geom_point()
+asymmetric_g2_difference <- ggplot(asymmetric_average,aes(x = g2_t, y = diff2,col=g1_t_factor,shape=g1_t_factor)) + geom_point()
+
+#weak minority preferences testing
 
