@@ -217,5 +217,5 @@ sbm_dim = DataFrame(
     ["Tolerance","Run", "Dimension","Similaity_ratio","Happy_proportion","Coherence"]
 )
 
-CSV.write(joinpath(__proj_directory__,"abm_results.csv"),sbm_dim)    
+CSV.write(joinpath(__proj_directory__,"tolerance_results.csv"),sbm_dim)    
 

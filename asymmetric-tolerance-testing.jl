@@ -234,5 +234,5 @@ sbm_dim = DataFrame(
     ["g1_t","g2_t","Run", "Dimension","Similaity_ratio","Happy_proportion","Coherence","g1_similarity","g2_similarity"]
 )
 
-CSV.write(joinpath(__proj_directory__,"abm_results.csv"),sbm_dim)    
+CSV.write(joinpath(__proj_directory__,"asymmetric_results.csv"),sbm_dim)    
 
