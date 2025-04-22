@@ -52,12 +52,9 @@ global steps = 1000
 global runs = 100
 global happy_agents = 0
 global similarity_ratio_sum = 0
-global group1_tolerance = [0.2]
-global group2_tolerance = [0.9]
+global group1_tolerance = [0.2] #change this manually
+global group2_tolerance = [0.9] #change this manually
 
-
-#global group1_tolerance = [0.5,0.5,0.9,0.9,0.15,0.15,0.2,0.2]
-#global group2_tolerance = [0.5,0.9,0.5,0.9,0.85,0.9,0.85,0.9] run by individual entry so that the data saves correctly
 
 idx = 1
  

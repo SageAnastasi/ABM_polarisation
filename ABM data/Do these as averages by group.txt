@@ -1,5 +1,0 @@
-Do these as averages by group:
-- size changes everything except coherence
-- tolerance changes everything except coherence
-
-Get difference between tolerance and similarity ratio and graph, do similar for group sizes

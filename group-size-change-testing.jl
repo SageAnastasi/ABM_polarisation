@@ -52,7 +52,7 @@ global steps = 1000
 global runs = 100
 global happy_agents = 0
 global similarity_ratio_sum = 0
-global tolerances = [0.25, 0.5, 0.85,0.95] #converges immediately, fast, slowly with segregation, 
+global tolerances = [0.25, 0.5, 0.85,0.95] #stabilises immediately, fast, slowly with segregation, 
 
 idx = 1
  
