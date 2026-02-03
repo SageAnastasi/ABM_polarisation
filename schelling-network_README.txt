@@ -1,1 +1,0 @@
-schelling_network aims to add a social network to the schelling segregation model, as a proof of concept.

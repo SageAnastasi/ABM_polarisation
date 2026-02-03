@@ -31,7 +31,6 @@ result = run_single_experiment(config)
 - `model.jl`: Model initialization
 - `simulation.jl`: Step functions and simulation runners
 - `analysis.jl`: Metrics computation (spectral dimension, etc.)
-- `io.jl`: CSV reading/writing utilities
 - `visualization.jl`: CairoMakie plotting functions
 """
 module SchellingNetwork
@@ -60,7 +59,6 @@ include("types.jl")
 include("analysis.jl")
 include("model.jl")
 include("simulation.jl")
-include("io.jl")
 include("visualization.jl")
 include("network_visualization.jl")
 
@@ -88,16 +86,6 @@ export spectral_gap
 export compute_dimension
 export blocks
 export adjm_from_edge_list
-
-# Export I/O functions
-export results_to_dataframe
-export save_results
-export load_results
-export append_results
-export TOLERANCE_COLUMNS
-export ASYMMETRIC_COLUMNS
-export GROUP_SIZE_COLUMNS
-export WEAK_MINORITY_COLUMNS
 
 # Export visualization functions
 export plot_tolerance_stabilisation
